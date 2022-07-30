@@ -8,23 +8,28 @@ import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../../ProductContext/products";
 import Home from "../home/Home";
 import styles from "./Bag.module.css";
+
+let cart = JSON.parse(localStorage.getItem("cartData")) || [];
 const Bag = () => {
   let navigate = useNavigate();
   const { wishListData, handleRemove } = useContext(ProductContext);
-  const [total, setTotal] = useState(0);
-  const [count, setCount] = useState(1);
+  const [cartItems, setCartItems] = useState(cart);
   const [input, setInput] = useState("");
   const [discount, setDiscount] = useState(false);
 
-  var totalprice = wishListData.reduce(function (acc, elem) {
+  var totalprice = cartItems.reduce(function (acc, elem) {
     return acc + elem.price;
   }, 0);
 
   useEffect(() => {
-    if (wishListData.length < 1) {
+    if (cartItems.length < 1) {
       return navigate("/empty");
     }
   });
+
+  useEffect(() => {
+    localStorage.setItem("cartData", JSON.stringify(wishListData));
+  }, [wishListData]);
 
   const handleCheckCoupon = () => {
     if (input === "prayash@50") {
@@ -32,12 +37,12 @@ const Bag = () => {
       setDiscount(true);
     }
 
-    setInput("")
+    setInput("");
   };
 
-const handleCheckoutPage = () => {
-  navigate("/address")
-}
+  const handleCheckoutPage = () => {
+    navigate("/address");
+  };
 
   return (
     <>
@@ -46,10 +51,10 @@ const handleCheckoutPage = () => {
         <div className={styles.products_list}>
           <div className={styles.leftSide}>
             <p className={styles.totalItems}>
-              TOTAL ITEMS : {wishListData.length}
+              TOTAL ITEMS : {cartItems.length}
             </p>
             <div className={styles.singleItemleftDiv}>
-              {wishListData.map((item) => {
+              {cartItems.map((item) => {
                 return (
                   <div className={styles.singleLeftItem} key={item.id}>
                     <div key={item.id} className={styles.imageAndtitle}>
@@ -67,11 +72,10 @@ const handleCheckoutPage = () => {
                       <div>
                         <Tooltip title="delete">
                           <IconButton
-                          
                             onClick={() => handleRemove(item.id)}
                             aria-label="delete"
                           >
-                            <DeleteIcon style={{fontSize:'25px'}}  />
+                            <DeleteIcon style={{ fontSize: "25px" }} />
                           </IconButton>
                         </Tooltip>
                       </div>
@@ -88,11 +92,11 @@ const handleCheckoutPage = () => {
             <div>
               <h2>Apply Coupon Code</h2>
               <div className={styles.inputDIv}>
-                <input value={input}
-                  onChange={(e) =>{
-                    setInput(e.target.value)
-                    
-                  } }
+                <input
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                  }}
                   placeholder="Add copoun code here..."
                   type="text"
                 />
@@ -103,8 +107,6 @@ const handleCheckoutPage = () => {
                 >
                   ADD
                 </Button>
-
-                
               </div>
               <div>
                 <p>Product Amount :</p>
@@ -130,8 +132,10 @@ const handleCheckoutPage = () => {
                 </div>
               )}
               <div>
-                 <Button onClick={handleCheckoutPage} variant="contained">Checkout</Button>
-                </div>
+                <Button onClick={handleCheckoutPage} variant="contained">
+                  Checkout
+                </Button>
+              </div>
             </div>
           </div>
         </div>
